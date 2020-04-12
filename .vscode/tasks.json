@@ -1,0 +1,39 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "dune-build",
+            "type": "shell",
+            "command": "dune build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "dune-build-install",
+            "type": "shell",
+            "command": "dune build @install",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "run tests",
+            "type": "shell",
+            "command": "dune runtest",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "dune-install",
+            "type": "shell",
+            "command": "dune install",
+            "group": "build",
+            "problemMatcher": []
+        },
+    ]
+}
