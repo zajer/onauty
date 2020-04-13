@@ -1,0 +1,8 @@
+(
+    tests
+    (names 
+        iso_tests
+    ) 
+    (modes native)
+    (libraries ounit2 onauty )
+)

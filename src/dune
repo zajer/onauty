@@ -3,6 +3,6 @@
   (name onauty)
   (public_name onauty)
   (libraries )
-  
+  (foreign_stubs (language c) (names iso_stubs) )
 )
 
