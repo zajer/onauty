@@ -185,16 +185,16 @@ int main_routine_ndir(int nov,value *edges1,value *edges2,char are_colored,value
     return result;
 }
 
-value nauty_graph_iso_no_colors(value graph1, value graph2)
+value nauty_graph_iso(value graph1, value graph2,value are_colored)
 {
-    CAMLparam2 (graph1,graph2);
-    CAMLlocal3 (result,edges1,edges2);
-	int nov1_i,nov2_i,result_i;
+    CAMLparam3 (graph1,graph2,are_colored);
+    CAMLlocal5 (result,edges1,edges2,colors1,colors2);
+	int nov1_i,nov2_i,result_i,are_colored_i;
 	if ( DEBUG )
 		printf("c_stub - ndir - start\n");
 	nov1_i = Int_val(Field(graph1,0));
 	nov2_i = Int_val(Field(graph2,0));
-	
+	are_colored_i = Bool_val(are_colored);
 	if (nov1_i == nov2_i && nov1_i != 0)
 	{
 		
@@ -203,7 +203,15 @@ value nauty_graph_iso_no_colors(value graph1, value graph2)
 		edges1 = Field(graph1,1);
 		edges2 = Field(graph2,1);
 		
-		result_i = main_routine_ndir(nov1_i,&edges1,&edges2,FALSE,NULL,NULL);
+		if (are_colored_i)
+		{
+			colors1 = Field(graph1,2);
+			colors2 = Field(graph2,2);
+		
+			result_i = main_routine_ndir(nov1_i,&edges1,&edges2,TRUE,&colors1,&colors2);	
+		}
+		else
+			result_i = main_routine_ndir(nov1_i,&edges1,&edges2,FALSE,NULL,NULL);
 		
 		if ( DEBUG )
 			printf("c_stub - ndir - result=%d\n",result_i);
@@ -227,32 +235,5 @@ value nauty_graph_iso_no_colors(value graph1, value graph2)
     
 	if ( DEBUG )
 		printf("c_stub - ndir - finished\n");
-	CAMLreturn (result);
-}
-
-value nauty_graph_iso_colors(value graph1, value graph2)
-{
-    CAMLparam2 (graph1,graph2);
-    CAMLlocal5 (result,edges1,edges2,colors1,colors2);
-	
-	int nov1_i,nov2_i,result_i;
-	nov1_i = Int_val(Field(graph1,0));
-	nov2_i = Int_val(Field(graph2,0));
-	
-	if (nov1_i == nov2_i && nov1_i != 0)
-	{
-		edges1 = Field(graph1,1);
-		edges2 = Field(graph2,1);
-		colors1 = Field(graph1,2);
-		colors2 = Field(graph2,2);
-		
-		result_i = main_routine_ndir(nov1_i,&edges1,&edges2,TRUE,&colors1,&colors2);
-		result = Val_int( result_i );
-	}
-	else if (nov1_i==0 && nov2_i == 0)
-		result = Val_int(1);
-	else
-		result = Val_int(0);
-    
 	CAMLreturn (result);
 }
