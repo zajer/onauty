@@ -13,7 +13,7 @@ To create a graph one should specify its vertices and adjacency matrix<sup>1</su
 ```
 open Onauty
 
-let g = Graph.empty 
+let g = Graph.empty ()
     |> Graph.add_vertices 4 
     |> Graph.add_conns [(0,1);(1,2);(3,2)]
 ```
@@ -21,7 +21,7 @@ It is possible to create a graph all at once (as shown above) or partially.
 ```
 open Onauty
 
-let g = Graph.empty ;;
+let g = Graph.empty () ;;
 Graph.add_vertex g |> Graph.add_vertex ;;
 .
 . (* doing some stuff*)
