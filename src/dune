@@ -3,6 +3,7 @@
   (name onauty)
   (public_name onauty)
   (libraries )
+  (c_library_flags :standard -lnauty)
   (foreign_stubs (language c) (names iso_stubs) )
 )
 

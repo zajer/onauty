@@ -1,6 +1,7 @@
 (
     tests
-    (names 
+    (names
+        graph_tests 
         iso_tests
     ) 
     (modes native)
