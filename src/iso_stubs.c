@@ -53,6 +53,16 @@ int extract_to_parameter(value *list_element_content)
 	return result;
 }
 
+value *next_eol(value *current_eol)
+{
+	return &Field(*current_eol,1);
+}
+
+value *content_of_eol(value *eol)
+{
+	return &Field(*eol,0);
+}
+
 void setup_graph_ndir(graph *g,int g_sz,int no_nodes,int no_setwords,value *edges_list)
 {
     value *current_eol,*current_content;
@@ -63,14 +73,39 @@ void setup_graph_ndir(graph *g,int g_sz,int no_nodes,int no_setwords,value *edge
 
     while ( !is_end_of_list(current_eol) )
     {
-		current_content = &Field( *current_eol,0 );
+		//current_content = &Field( *current_eol,0 );
+		current_content = content_of_eol (current_eol);
 
         from = extract_from_parameter( current_content );
         to = extract_to_parameter( current_content );
 		
         ADDONEEDGE(g,from,to,no_setwords);
-        current_eol = &Field(*current_eol,1);
+        //current_eol = &Field(*current_eol,1);
+		current_eol = next_eol(current_eol);
     }
+}
+
+void color_graph(int *lab,int *ptn,value *colors_list)
+{
+	value *current_color,*list_of_vertices_4_current_color_list,*current_vertex_4_current_color,*vertex_id;
+	
+	current_color = colors_list;
+	int i = 0;
+	while( !is_end_of_list(current_color) )
+	{
+		list_of_vertices_4_current_color_list = content_of_eol(current_color);
+		current_vertex_4_current_color = list_of_vertices_4_current_color_list;
+		while ( !is_end_of_list(current_vertex_4_current_color) )
+		{
+			vertex_id = content_of_eol(current_vertex_4_current_color);
+			lab[i] = Int_val(*vertex_id);
+			ptn[i] = 1;
+			i++;
+			current_vertex_4_current_color = next_eol(current_vertex_4_current_color);
+		}
+		ptn[i-1] = 0;
+		current_color = next_eol(current_color);
+	}
 }
 
 int main_routine_ndir(int nov,value *edges1,value *edges2,char are_colored,value *colors1,value *colors2)
@@ -126,8 +161,8 @@ int main_routine_ndir(int nov,value *edges1,value *edges2,char are_colored,value
 
 	if (are_colored)
 	{
-		//color_graph1(lab1,ptn1,n);
-		//color_graph2(lab2,ptn2,n);
+		color_graph(lab1,ptn1,colors1);
+		color_graph(lab2,ptn2,colors2);
 	    options.defaultptn = FALSE; 
 		if ( DEBUG )
 			printf("Main routine ndir - colors set\n");
@@ -192,5 +227,32 @@ value nauty_graph_iso_no_colors(value graph1, value graph2)
     
 	if ( DEBUG )
 		printf("c_stub - ndir - finished\n");
+	CAMLreturn (result);
+}
+
+value nauty_graph_iso_colors(value graph1, value graph2)
+{
+    CAMLparam2 (graph1,graph2);
+    CAMLlocal5 (result,edges1,edges2,colors1,colors2);
+	
+	int nov1_i,nov2_i,result_i;
+	nov1_i = Int_val(Field(graph1,0));
+	nov2_i = Int_val(Field(graph2,0));
+	
+	if (nov1_i == nov2_i && nov1_i != 0)
+	{
+		edges1 = Field(graph1,1);
+		edges2 = Field(graph2,1);
+		colors1 = Field(graph1,2);
+		colors2 = Field(graph2,2);
+		
+		result_i = main_routine_ndir(nov1_i,&edges1,&edges2,TRUE,&colors1,&colors2);
+		result = Val_int( result_i );
+	}
+	else if (nov1_i==0 && nov2_i == 0)
+		result = Val_int(1);
+	else
+		result = Val_int(0);
+    
 	CAMLreturn (result);
 }
