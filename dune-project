@@ -1,6 +1,6 @@
 (lang dune 2.0)
 (name onauty)
-(version 0.1)
+(version 0.5)
 (generate_opam_files true)
 
 (source (github zajer/onauty))
@@ -13,10 +13,11 @@
 (package
   (name onauty)
   (synopsis "OCaml bindings to nauty library")
-  (description "")
+  (description "Library for deternining isomorphis between graphs and digraphs. Library uses nauty library as its backbone.")
   (tags ("nauty" "graphs" "isomorphis" ) )
   (depends
     (dune (and :build (>= 2.0.0)))
-    
+    (ocaml (>= 4.06.0))
+    conf-nauty
   )
 )

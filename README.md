@@ -4,7 +4,7 @@ In case they are, a map between vertices can also be calculated.
 It uses nauty library as its backbone.
 
 ## Credits
-This is software uses *nauty and Traces* library (http://pallini.di.uniroma1.it/) licensed under the Apache License 2.0. A boilerplate declaration is available in *LICENSE-Nauty&Traces.txt* file. 
+This software uses *nauty and Traces* library (http://pallini.di.uniroma1.it/) licensed under the Apache License 2.0. A boilerplate declaration is available in *LICENSE-Nauty&Traces.txt* file. 
 The full license is available at: https://www.apache.org/licenses/LICENSE-2.0
 
 ## Usage
