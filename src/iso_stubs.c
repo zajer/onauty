@@ -206,10 +206,10 @@ void common_nauty_routine(
 	*canon_graph1_result_sz=&cg1_sz;
 	*canon_graph2_result_sz=&cg2_sz;
 	
-	DYNFREE(ptn1,ptn1_sz);
-	DYNFREE(ptn2,ptn2_sz);
-	DYNFREE(orbits1,orbits1_sz);
-	DYNFREE(orbits2,orbits2_sz);
+	//DYNFREE(ptn1,ptn1_sz);
+	//DYNFREE(ptn2,ptn2_sz);
+	//DYNFREE(orbits1,orbits1_sz);
+	//DYNFREE(orbits2,orbits2_sz);
 }
 
 int common_nauty_iso_check(
@@ -230,8 +230,8 @@ int common_nauty_iso_check(
 	common_nauty_routine(nov,edges1,edges2,colors1,colors2,are_colored,are_graphs_directed,&options,&canon_graph1_result,&canon_graph2_result,&canon_graph1_result_size,&canon_graph2_result_size);
 	result = are_canon_graphs_equal(canon_graph1_result,canon_graph2_result,SETWORDSNEEDED(nov),nov);
 	
-	DYNFREE(canon_graph1_result,canon_graph1_result_size);
-	DYNFREE(canon_graph2_result,canon_graph2_result_size);
+	//DYNFREE(canon_graph1_result,canon_graph1_result_size);
+	//DYNFREE(canon_graph2_result,canon_graph2_result_size);
 	return result;
 }
 
