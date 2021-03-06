@@ -2,8 +2,9 @@ open Common
 
 type c_graph_colored = {nov:int ;e:(int*int) list;c:int list list}
 
-external nauty_graphs_iso : c_graph_colored -> c_graph_colored -> bool -> bool = "nauty_graph_iso"
-external nauty_digraphs_iso : c_graph_colored -> c_graph_colored -> bool -> bool = "nauty_digraph_iso"
+(**external nauty_graphs_iso : c_graph_colored -> c_graph_colored -> bool -> bool = "nauty_graph_iso" **)
+external ext_iso_check : c_graph_colored -> c_graph_colored -> bool -> bool -> bool = "common_ocaml_iso_check_routine"
+(*external nauty_digraphs_iso : c_graph_colored -> c_graph_colored -> bool -> bool = "nauty_digraph_iso"*)
 
 let are_graphs_iso ?(check_colors=false) (graph1:Common.graph) (graph2:Common.graph) =
     let _ = StringMap.bindings (if Option.is_some graph1.c then Option.get graph1.c else StringMap.empty)
@@ -13,7 +14,7 @@ let are_graphs_iso ?(check_colors=false) (graph1:Common.graph) (graph2:Common.gr
             let c_graph1 = {nov=graph1.nov;e=graph1.e;c=[]}
             and c_graph2 = {nov=graph2.nov;e=graph2.e;c=[]}
             in
-                nauty_graphs_iso c_graph1 c_graph2 false
+                ext_iso_check c_graph1 c_graph2 false false
         else
             let colors1_list,vid1_order = StringMap.bindings (Option.get graph1.c) 
                 |> List.fold_left ( fun (res_cls,res_vid_order) (s,vid)-> ((s::res_cls),(vid :: res_vid_order))) ([],[])
@@ -25,11 +26,11 @@ let are_graphs_iso ?(check_colors=false) (graph1:Common.graph) (graph2:Common.gr
                 in
                 if check_colors then
                     if List.for_all2 (fun c1 c2 -> c1 = c2) colors1_list colors2_list then
-                        nauty_graphs_iso c_graph1 c_graph2 true
+                        ext_iso_check c_graph1 c_graph2 true false
                     else
                         false
                 else
-                    nauty_graphs_iso c_graph1 c_graph2 true
+                    ext_iso_check c_graph1 c_graph2 true false
 
 let are_digraphs_iso ?(check_colors=false) (graph1:Common.graph) (graph2:Common.graph) =
     let _ = StringMap.bindings (if Option.is_some graph1.c then Option.get graph1.c else StringMap.empty)
@@ -39,7 +40,7 @@ let are_digraphs_iso ?(check_colors=false) (graph1:Common.graph) (graph2:Common.
             let c_graph1 = {nov=graph1.nov;e=graph1.e;c=[]}
             and c_graph2 = {nov=graph2.nov;e=graph2.e;c=[]}
             in
-                nauty_digraphs_iso c_graph1 c_graph2 false
+                ext_iso_check c_graph1 c_graph2 false true
         else
             let colors1_list,vid1_order = StringMap.bindings (Option.get graph1.c) 
                 |> List.fold_left ( fun (res_cls,res_vid_order) (s,vid)-> ((s::res_cls),(vid :: res_vid_order))) ([],[])
@@ -51,8 +52,8 @@ let are_digraphs_iso ?(check_colors=false) (graph1:Common.graph) (graph2:Common.
                 in
                 if check_colors then
                     if List.for_all2 (fun c1 c2 -> c1 = c2) colors1_list colors2_list then
-                        nauty_digraphs_iso c_graph1 c_graph2 true
+                        ext_iso_check c_graph1 c_graph2 true true
                     else
                         false
                 else
-                    nauty_digraphs_iso c_graph1 c_graph2 true
+                    ext_iso_check c_graph1 c_graph2 true true

@@ -207,6 +207,111 @@ int main_routine_ndir(int nov,value *edges1,value *edges2,char are_colored,value
     return result;
 }
 
+void common_nauty_routine(
+	int nov,
+	value *edges1,value *edges2,
+	value *colors1,value *colors2,
+	boolean are_graphs_colored,
+	boolean are_graphs_directed,
+	optionblk* options,
+	graph **canon_graph1_result,graph **canon_graph2_result,
+	size_t** canon_graph1_result_sz,size_t **canon_graph2_result_sz
+	)
+{
+	statsblk stats; 
+	int n,m,i; 
+	size_t k; 
+	
+	DYNALLSTAT(int,lab1,lab1_sz); 
+	DYNALLSTAT(int,lab2,lab2_sz); 
+	DYNALLSTAT(int,ptn1,ptn1_sz); 
+	DYNALLSTAT(int,ptn2,ptn2_sz); 
+	DYNALLSTAT(int,orbits1,orbits1_sz); 
+	DYNALLSTAT(int,orbits2,orbits2_sz); 
+	//DYNALLSTAT(int,map,map_sz); 
+	DYNALLSTAT(graph,g1,g1_sz); 
+	DYNALLSTAT(graph,g2,g2_sz); 
+	DYNALLSTAT(graph,cg1,cg1_sz); 
+	DYNALLSTAT(graph,cg2,cg2_sz); 
+
+	options->getcanon = TRUE; 
+    
+	n = nov;	
+	m = SETWORDSNEEDED(n); 
+	
+	nauty_check(WORDSIZE,m,n,NAUTYVERSIONID); 
+	if ( DEBUG )
+		printf("common_nauty_routine - malloc start\n");
+	DYNALLOC1(int,lab1,lab1_sz,n,"malloc"); 
+	DYNALLOC1(int,lab2,lab2_sz,n,"malloc"); 
+	DYNALLOC1(int,ptn1,ptn1_sz,n,"malloc"); 
+	DYNALLOC1(int,ptn2,ptn2_sz,n,"malloc"); 
+	DYNALLOC1(int,orbits1,orbits1_sz,n,"malloc"); 
+	DYNALLOC1(int,orbits2,orbits2_sz,n,"malloc"); 
+	//DYNALLOC1(int,map,map_sz,n,"malloc"); 
+	DYNALLOC2(graph,g1,g1_sz,n,m,"malloc"); 
+	DYNALLOC2(graph,g2,g2_sz,n,m,"malloc");
+	DYNALLOC2(graph,cg1,cg1_sz,n,m,"malloc"); 
+	DYNALLOC2(graph,cg2,cg2_sz,n,m,"malloc"); 	
+
+	if(are_graphs_directed)
+	{
+		setup_graph_dir(g1,g1_sz,n,m,edges1);
+		if ( DEBUG )
+			printf("common_nauty_routine - setup of digraph1 finished\n");
+		setup_graph_dir(g2,g2_sz,n,m,edges2); 
+		if ( DEBUG )
+			printf("common_nauty_routine - setup of digraph2 finished\n");
+	}
+	else
+	{
+		setup_graph_ndir(g1,g1_sz,n,m,edges1);
+		if ( DEBUG )
+			printf("common_nauty_routine - setup of graph1 finished\n");
+		setup_graph_ndir(g2,g2_sz,n,m,edges2); 
+		if ( DEBUG )
+			printf("common_nauty_routine - setup of graph2 finished\n");
+	}
+
+	if (are_graphs_colored)
+	{
+		color_graph(lab1,ptn1,colors1);
+		color_graph(lab2,ptn2,colors2);
+		options->defaultptn = FALSE; 
+		if ( DEBUG )
+			printf("common_nauty_routine - colors set\n");
+	}
+
+	densenauty(g1,lab1,ptn1,orbits1,options,&stats,m,n,cg1);
+	densenauty(g2,lab2,ptn2,orbits2,options,&stats,m,n,cg2); 
+	*canon_graph1_result=cg1;
+	*canon_graph2_result=cg2;
+	*canon_graph1_result_sz=&cg1_sz;
+	*canon_graph2_result_sz=&cg2_sz;
+	
+	DYNFREE(g1,g1_sz);
+	DYNFREE(g2,g2_sz);
+	DYNFREE(ptn1,ptn1_sz);
+	DYNFREE(ptn2,ptn2_sz);
+	DYNFREE(orbits1,orbits1_sz);
+	DYNFREE(orbits2,orbits2_sz);
+}
+
+int common_nauty_iso_check(int nov,value *edges1,value *edges2,char are_colored,value *colors1,value *colors2,boolean are_graphs_directed)
+{
+	graph *canon_graph1_result, *canon_graph2_result;
+	size_t *canon_graph1_result_size, *canon_graph2_result_size;
+	int result;
+	DEFAULTOPTIONS_DIGRAPH(options); 
+
+	common_nauty_routine(nov,edges1,edges2,colors1,colors2,are_colored,are_graphs_directed,&options,&canon_graph1_result,&canon_graph2_result,&canon_graph1_result_size,&canon_graph2_result_size);
+	result = are_canon_graphs_equal(canon_graph1_result,canon_graph2_result,SETWORDSNEEDED(nov),nov);
+	
+	//DYNFREE(canon_graph1_result,canon_graph1_result_size);
+	//DYNFREE(canon_graph2_result,canon_graph2_result_size);
+	return result;
+}
+
 int main_routine_dir(int nov,value *edges1,value *edges2,char are_colored,value *colors1,value *colors2)
 {
     if ( DEBUG )
@@ -282,6 +387,62 @@ int main_routine_dir(int nov,value *edges1,value *edges2,char are_colored,value 
 		printf("Main routine dir - finished - result=%d\n",result);
 
     return result;
+}
+
+value common_ocaml_iso_check_routine(value graph1, value graph2,value are_colored,value are_directed)
+{
+    CAMLparam3 (graph1,graph2,are_colored);
+    CAMLlocal5 (result,edges1,edges2,colors1,colors2);
+	int nov1_i,nov2_i,result_i,are_colored_i,are_directed_i;
+	if ( DEBUG )
+		printf("common_ocaml_iso_check_routine - start\n");
+	nov1_i = Int_val(Field(graph1,0));
+	nov2_i = Int_val(Field(graph2,0));
+	are_colored_i = Bool_val(are_colored);
+	are_directed_i = Bool_val(are_directed);
+	if (nov1_i == nov2_i && nov1_i != 0)
+	{
+		
+		if ( DEBUG )
+			printf("common_ocaml_iso_check_routine - numbers of vertices are equal:%d\n",nov1_i);
+		edges1 = Field(graph1,1);
+		edges2 = Field(graph2,1);
+		
+		if (are_colored_i)
+		{
+			colors1 = Field(graph1,2);
+			colors2 = Field(graph2,2);
+		
+			//result_i = main_routine_ndir(nov1_i,&edges1,&edges2,TRUE,&colors1,&colors2);
+			result_i = common_nauty_iso_check(nov1_i,&edges1,&edges2,TRUE,&colors1,&colors2,are_directed_i);
+		}
+		else
+			//result_i = main_routine_ndir(nov1_i,&edges1,&edges2,FALSE,NULL,NULL);
+			result_i = common_nauty_iso_check(nov1_i,&edges1,&edges2,FALSE,NULL,NULL,are_directed_i);
+		
+		if ( DEBUG )
+			printf("common_ocaml_iso_check_routine - result=%d\n",result_i);
+		
+		result = Val_int( result_i );
+		if ( DEBUG )
+			printf("common_ocaml_iso_check_routine - result converted\n");
+	}
+	else if (nov1_i==0 && nov2_i == 0)
+	{
+		if ( DEBUG )
+			printf("common_ocaml_iso_check_routine - Numbers of vertices are equal to 0 in both graphs");
+		result = Val_int(1);
+	}
+	else
+	{
+		if ( DEBUG )
+			printf("common_ocaml_iso_check_routine - Numbers of vertices are not equal: nov1=%d nov2=%d\n",nov1_i,nov2_i);
+		result = Val_int(0);
+	}
+    
+	if ( DEBUG )
+		printf("common_ocaml_iso_check_routine - finished\n");
+	CAMLreturn (result);
 }
 
 value nauty_graph_iso(value graph1, value graph2,value are_colored)
