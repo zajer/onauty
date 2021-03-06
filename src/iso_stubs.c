@@ -127,18 +127,18 @@ void color_graph(int *lab,int *ptn,value *colors_list)
 }
 
 void common_nauty_routine(
-	int nov,
+	int n,int m,
 	value *edges1,value *edges2,
 	value *colors1,value *colors2,
 	boolean are_graphs_colored,
 	boolean are_graphs_directed,
 	optionblk* options,
-	graph **canon_graph1_result,graph **canon_graph2_result,
-	size_t** canon_graph1_result_sz,size_t **canon_graph2_result_sz
+	graph *cg1,graph *cg2
 	)
 {
+	//n = no_vertices;	
+	//m = SETWORDSNEEDED(no_vertices); 
 	statsblk stats; 
-	int n,m,i; 
 	size_t k; 
 	
 	DYNALLSTAT(int,lab1,lab1_sz); 
@@ -149,14 +149,9 @@ void common_nauty_routine(
 	DYNALLSTAT(int,orbits2,orbits2_sz);  
 	DYNALLSTAT(graph,g1,g1_sz); 
 	DYNALLSTAT(graph,g2,g2_sz); 
-	DYNALLSTAT(graph,cg1,cg1_sz); 
-	DYNALLSTAT(graph,cg2,cg2_sz); 
 
 	options->getcanon = TRUE; 
     
-	n = nov;	
-	m = SETWORDSNEEDED(n); 
-	
 	nauty_check(WORDSIZE,m,n,NAUTYVERSIONID); 
 	if ( DEBUG )
 		printf("common_nauty_routine - malloc start\n");
@@ -168,8 +163,6 @@ void common_nauty_routine(
 	DYNALLOC1(int,orbits2,orbits2_sz,n,"malloc"); 
 	DYNALLOC2(graph,g1,g1_sz,n,m,"malloc"); 
 	DYNALLOC2(graph,g2,g2_sz,n,m,"malloc");
-	DYNALLOC2(graph,cg1,cg1_sz,n,m,"malloc"); 
-	DYNALLOC2(graph,cg2,cg2_sz,n,m,"malloc"); 	
 
 	if(are_graphs_directed)
 	{
@@ -201,19 +194,17 @@ void common_nauty_routine(
 
 	densenauty(g1,lab1,ptn1,orbits1,options,&stats,m,n,cg1);
 	densenauty(g2,lab2,ptn2,orbits2,options,&stats,m,n,cg2); 
-	*canon_graph1_result=cg1;
-	*canon_graph2_result=cg2;
-	*canon_graph1_result_sz=&cg1_sz;
-	*canon_graph2_result_sz=&cg2_sz;
 	
-	//DYNFREE(ptn1,ptn1_sz);
-	//DYNFREE(ptn2,ptn2_sz);
-	//DYNFREE(orbits1,orbits1_sz);
-	//DYNFREE(orbits2,orbits2_sz);
+	DYNFREE(ptn1,ptn1_sz);
+	DYNFREE(ptn2,ptn2_sz);
+	DYNFREE(orbits1,orbits1_sz);
+	DYNFREE(orbits2,orbits2_sz);
+	DYNFREE(g1,g1_sz);
+	DYNFREE(g2,g2_sz);
 }
 
 int common_nauty_iso_check(
-	int nov,
+	int no_vertices,
 	value *edges1,
 	value *edges2,
 	char are_colored,
@@ -222,16 +213,31 @@ int common_nauty_iso_check(
 	boolean are_graphs_directed
 	)
 {
-	graph *canon_graph1_result, *canon_graph2_result;
-	size_t *canon_graph1_result_size, *canon_graph2_result_size;
-	int result;
-	DEFAULTOPTIONS_DIGRAPH(options); 
-
-	common_nauty_routine(nov,edges1,edges2,colors1,colors2,are_colored,are_graphs_directed,&options,&canon_graph1_result,&canon_graph2_result,&canon_graph1_result_size,&canon_graph2_result_size);
-	result = are_canon_graphs_equal(canon_graph1_result,canon_graph2_result,SETWORDSNEEDED(nov),nov);
 	
-	//DYNFREE(canon_graph1_result,canon_graph1_result_size);
-	//DYNFREE(canon_graph2_result,canon_graph2_result_size);
+	int result,m;
+	DEFAULTOPTIONS_DIGRAPH(options); 
+	m=SETWORDSNEEDED(no_vertices);
+	
+	DYNALLSTAT(graph,canon_graph1_result,canon_graph1_result_size); 
+	DYNALLSTAT(graph,canon_graph2_result,canon_graph2_result_size); 
+	
+	DYNALLOC2(graph,canon_graph1_result,canon_graph1_result_size,no_vertices,m,"malloc"); 
+	DYNALLOC2(graph,canon_graph2_result,canon_graph2_result_size,no_vertices ,m,"malloc"); 
+	
+	common_nauty_routine(
+		no_vertices,m,
+		edges1,edges2,
+		colors1,colors2,
+		are_colored,
+		are_graphs_directed,
+		&options,
+		canon_graph1_result,canon_graph2_result
+		);
+	
+	result = are_canon_graphs_equal(canon_graph1_result,canon_graph2_result,m,no_vertices);
+	
+	DYNFREE(canon_graph1_result,canon_graph1_result_size);
+	DYNFREE(canon_graph2_result,canon_graph2_result_size);
 	return result;
 }
 
