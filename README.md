@@ -59,24 +59,28 @@ let g = Onauty.Graph.empty ()
 Please note that order of colors is important for determing the ismorphism.
 For example:
 ```
-let g1 = Onauty.Graph.empty () 
-    |> Onauty.Graph.add_vertices 4 
-    |> Onauty.Graph.add_conns [(0,1);(2,1);(3,2)]
-    |> Onauty.Graph.set_colors 
+open Onauty
+let g1 = Graph.empty () 
+    |> Graph.add_vertices 4 
+    |> Graph.add_conns [(0,1);(2,1);(3,2)]
+    |> Graph.set_colors 
       (Common.StringMap.empty 
         |> Common.StringMap.add "A" [0]
         |> Common.StringMap.add "B" [2;3]
-        |> Common.StringMap.add "C" [1]
-let g2 = Onauty.Graph.empty () 
-    |> Onauty.Graph.add_vertices 4 
-    |> Onauty.Graph.add_conns [(0,1);(2,1);(3,2)]
-    |> Onauty.Graph.set_colors 
+        |> Common.StringMap.add "C" [1] 
+      )
+      
+let g2 = Graph.empty () 
+    |> Graph.add_vertices 4 
+    |> Graph.add_conns [(0,1);(2,1);(3,2)]
+    |> Graph.set_colors 
       (Common.StringMap.empty 
         |> Common.StringMap.add "C" [0]
         |> Common.StringMap.add "A" [2;3]
         |> Common.StringMap.add "B" [1]
+      )
 (*this result in false because colors (represented as strings "A", "B" and "C") are sorted alphbetically so the first graph has vertex 0 assigned to first color while the second graph has vertex 0 assigned to third color. Structurally graphs are identical but colors are different.  *)
-let are_iso = Onauty.Iso.are_graphs_iso g1 g2 
+let are_iso = Iso.are_graphs_iso ~check_colors:false g1 g2 ;;
 ```
 ### Mappig between graphs
 TBD

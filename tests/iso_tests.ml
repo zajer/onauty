@@ -158,7 +158,28 @@ let test_iso_14 _ =
     |> Onauty.Graph.add_conns [(0,1);(1,2);(2,3)]
   in
       assert_equal false (Onauty.Iso.are_digraphs_iso g1 g2);;        
-      
+let test_iso_readme _ =
+  let g1 = Graph.empty () 
+    |> Graph.add_vertices 4 
+    |> Graph.add_conns [(0,1);(2,1);(3,2)]
+    |> Graph.set_colors 
+      (Common.StringMap.empty 
+        |> Common.StringMap.add "A" [0]
+        |> Common.StringMap.add "B" [2;3]
+        |> Common.StringMap.add "C" [1] 
+      ) 
+  and g2 = Graph.empty () 
+    |> Graph.add_vertices 4 
+    |> Graph.add_conns [(0,1);(2,1);(3,2)]
+    |> Graph.set_colors 
+      (Common.StringMap.empty 
+        |> Common.StringMap.add "C" [0]
+        |> Common.StringMap.add "A" [2;3]
+        |> Common.StringMap.add "B" [1]
+      )
+  in
+    assert_equal true (Iso.are_graphs_iso ~check_colors:false g1 g2 ) ;
+    assert_equal false (Iso.are_graphs_iso ~check_colors:true g1 g2 )
 let suite =
   "ISO tests" >::: [
     "iso test 1 - ndir - empty">::test_iso_1;
@@ -175,6 +196,7 @@ let suite =
     "iso test 12 - dir - colored - isomorphic-not equal">::test_iso_12;
     "iso test 13 - ndir - isomorphic - order of edges">::test_iso_13;
     "iso test 14 - dir - not isomorphic - order of edges">::test_iso_14;
+    "iso test - example from readme">::test_iso_readme;
 ]
 
 let () =
