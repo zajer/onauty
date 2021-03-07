@@ -204,6 +204,16 @@ void common_nauty_routine(
 	DYNFREE(g2,g2_sz);
 }
 
+optionblk get_default_options(boolean are_graphs_directed)
+{
+	DEFAULTOPTIONS_DIGRAPH(options_di);
+	DEFAULTOPTIONS_GRAPH(options_g);
+	if(are_graphs_directed)
+		return options_di;
+	else
+		return options_g;
+}
+
 int common_nauty_iso_check(
 	int no_vertices,
 	value *edges1,
@@ -216,7 +226,7 @@ int common_nauty_iso_check(
 {
 	
 	int result,m;
-	DEFAULTOPTIONS_DIGRAPH(options); 
+	optionblk options = get_default_options(are_graphs_directed);
 	m=SETWORDSNEEDED(no_vertices);
 	
 	DYNALLSTAT(int,lab1,lab1_sz); 
