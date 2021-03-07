@@ -3,6 +3,7 @@
     (names
         graph_tests 
         iso_tests
+        iso_map_tests
     ) 
     (modes native)
     (libraries ounit2 onauty )
