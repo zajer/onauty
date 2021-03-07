@@ -2,7 +2,7 @@
     tests
     (names
         graph_tests 
-        iso_tests
+        iso_check_tests
         iso_map_tests
     ) 
     (modes native)
