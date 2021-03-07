@@ -79,8 +79,32 @@ let g2 = Graph.empty ()
         |> Common.StringMap.add "A" [2;3]
         |> Common.StringMap.add "B" [1]
       )
-(*this result in false because colors (represented as strings "A", "B" and "C") are sorted alphbetically so the first graph has vertex 0 assigned to first color while the second graph has vertex 0 assigned to third color. Structurally graphs are identical but colors are different.  *)
-let are_iso = Iso.are_graphs_iso ~check_colors:false g1 g2 ;;
+(*this results in false because colors (represented as strings "A", "B" and "C") are sorted alphbetically so the first graph has vertex 0 assigned to first color while the second graph has vertex 0 assigned to third color. Structurally graphs are identical but colors are different.  *)
+let are_iso = Iso.are_graphs_iso ~check_colors:true g1 g2 ;;
 ```
 ### Mappig between graphs
-TBD
+Similarly as before, we can generate a mapping between isomorphic graphs (or digraphs).
+For example:
+```
+let g1 = Graph.empty () 
+    |> Graph.add_vertices 4 
+    |> Graph.add_conns [(0,1);(2,1);(3,2)]
+    |> Graph.set_colors 
+      (Common.StringMap.empty 
+        |> Common.StringMap.add "A" [0]
+        |> Common.StringMap.add "B" [1]
+        |> Common.StringMap.add "C" [2;3] 
+      )   
+	
+let g2 = Graph.empty () 
+	|> Graph.add_vertices 4 
+	|> Graph.add_conns [(0,1);(2,1);(3,2)]
+	|> Graph.set_colors 
+	  (Common.StringMap.empty 
+		|> Common.StringMap.add "A" [3]
+		|> Common.StringMap.add "B" [2]
+		|> Common.StringMap.add "C" [0;1]
+	  )
+let are_graphs_iso,mapping = Iso.graphs_iso_map ~check_colors:true g1 g2 (* this results in a tuple of the form: (true,[|(0,3);(1,2);(2,1);(3,0)|]) *)
+let are_digraphs_iso,mapping = Iso.digraphs_iso_map ~check_colors:true g1 g2 (* this results in a tupel of the form: (false,[||]) *)
+```

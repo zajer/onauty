@@ -391,8 +391,13 @@ value common_ocaml_iso_map_routine(value graph1, value graph2,value are_colored,
 			common_nauty_iso_mapping(nov1_i,&edges1,&edges2,FALSE,NULL,NULL,are_directed_i,&graphs_iso_mapping_result,&are_graphs_iso_result);
 		
 		if ( DEBUG ) printf("common_ocaml_iso_map_routine - are_iso_result=%d\n",*are_graphs_iso_result);
+		
 		Store_field (result, 0, Val_int(*are_graphs_iso_result));
-		Store_field (result, 1, c_int_array_to_ocaml_int_tuple_array(graphs_iso_mapping_result,nov1_i));
+		
+		if(*are_graphs_iso_result)
+			Store_field (result, 1, c_int_array_to_ocaml_int_tuple_array(graphs_iso_mapping_result,nov1_i));
+		else
+			Store_field (result, 1, Atom(0));
 		if ( DEBUG ) printf("common_ocaml_iso_check_routine - results converted\n");
 	}
 	else if (nov1_i==0 && nov2_i == 0)
