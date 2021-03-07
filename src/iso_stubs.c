@@ -133,7 +133,8 @@ void common_nauty_routine(
 	boolean are_graphs_colored,
 	boolean are_graphs_directed,
 	optionblk* options,
-	graph *cg1,graph *cg2
+	graph *cg1,graph *cg2,
+	int *lab1,int *lab2
 	)
 {
 	//n = no_vertices;	
@@ -141,8 +142,8 @@ void common_nauty_routine(
 	statsblk stats; 
 	size_t k; 
 	
-	DYNALLSTAT(int,lab1,lab1_sz); 
-	DYNALLSTAT(int,lab2,lab2_sz); 
+	//DYNALLSTAT(int,lab1,lab1_sz); 
+	//DYNALLSTAT(int,lab2,lab2_sz); 
 	DYNALLSTAT(int,ptn1,ptn1_sz); 
 	DYNALLSTAT(int,ptn2,ptn2_sz); 
 	DYNALLSTAT(int,orbits1,orbits1_sz); 
@@ -155,8 +156,8 @@ void common_nauty_routine(
 	nauty_check(WORDSIZE,m,n,NAUTYVERSIONID); 
 	if ( DEBUG )
 		printf("common_nauty_routine - malloc start\n");
-	DYNALLOC1(int,lab1,lab1_sz,n,"malloc"); 
-	DYNALLOC1(int,lab2,lab2_sz,n,"malloc"); 
+	//DYNALLOC1(int,lab1,lab1_sz,n,"malloc"); 
+	//DYNALLOC1(int,lab2,lab2_sz,n,"malloc"); 
 	DYNALLOC1(int,ptn1,ptn1_sz,n,"malloc"); 
 	DYNALLOC1(int,ptn2,ptn2_sz,n,"malloc"); 
 	DYNALLOC1(int,orbits1,orbits1_sz,n,"malloc"); 
@@ -218,9 +219,13 @@ int common_nauty_iso_check(
 	DEFAULTOPTIONS_DIGRAPH(options); 
 	m=SETWORDSNEEDED(no_vertices);
 	
+	DYNALLSTAT(int,lab1,lab1_sz); 
+	DYNALLSTAT(int,lab2,lab2_sz);
 	DYNALLSTAT(graph,canon_graph1_result,canon_graph1_result_size); 
 	DYNALLSTAT(graph,canon_graph2_result,canon_graph2_result_size); 
 	
+	DYNALLOC1(int,lab1,lab1_sz,no_vertices,"malloc"); 
+	DYNALLOC1(int,lab2,lab2_sz,no_vertices,"malloc"); 
 	DYNALLOC2(graph,canon_graph1_result,canon_graph1_result_size,no_vertices,m,"malloc"); 
 	DYNALLOC2(graph,canon_graph2_result,canon_graph2_result_size,no_vertices ,m,"malloc"); 
 	
@@ -231,15 +236,19 @@ int common_nauty_iso_check(
 		are_colored,
 		are_graphs_directed,
 		&options,
-		canon_graph1_result,canon_graph2_result
+		canon_graph1_result,canon_graph2_result,
+		lab1,lab2
 		);
 	
 	result = are_canon_graphs_equal(canon_graph1_result,canon_graph2_result,m,no_vertices);
 	
+	DYNFREE(lab1,lab1_sz);
+	DYNFREE(lab2,lab2_sz);
 	DYNFREE(canon_graph1_result,canon_graph1_result_size);
 	DYNFREE(canon_graph2_result,canon_graph2_result_size);
 	return result;
 }
+
 
 value common_ocaml_iso_check_routine(value graph1, value graph2,value are_colored,value are_directed)
 {
