@@ -157,7 +157,17 @@ let test_iso_14 _ =
     |> Onauty.Graph.add_vertices 4 
     |> Onauty.Graph.add_conns [(0,1);(1,2);(2,3)]
   in
-      assert_equal false (Onauty.Iso.are_digraphs_iso g1 g2);;        
+      assert_equal false (Onauty.Iso.are_digraphs_iso g1 g2);; 
+let test_iso_15 _ =
+  let g1 = Onauty.Graph.empty ()
+    |> Onauty.Graph.add_vertices 4 
+    |> Onauty.Graph.add_conns [(0,1);(0,2);(3,1);(3,2)]
+  and g2 = Onauty.Graph.empty () 
+    |> Onauty.Graph.add_vertices 4 
+    |> Onauty.Graph.add_conns [(0,1);(1,3);(3,2);(2,0)]
+  in
+      assert_equal false (Onauty.Iso.are_digraphs_iso g1 g2);
+      assert_equal true (Onauty.Iso.are_graphs_iso g1 g2);;
 let test_iso_readme _ =
   let g1 = Graph.empty () 
     |> Graph.add_vertices 4 
@@ -196,6 +206,7 @@ let suite =
     "iso test 12 - dir - colored - isomorphic-not equal">::test_iso_12;
     "iso test 13 - ndir - isomorphic - order of edges">::test_iso_13;
     "iso test 14 - dir - not isomorphic - order of edges">::test_iso_14;
+    "iso test 15 - both - order of edges">::test_iso_15;
     "iso test - example from readme">::test_iso_readme;
 ]
 
